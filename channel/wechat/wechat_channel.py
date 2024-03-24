@@ -326,11 +326,9 @@ def send_wechat_message(chat_message):
     headers = {
         "Content-Type": "application/json"
     }
+    logger.info("请求参数={}".format(data))
     # 发送POST请求
     response = requests.post("http://54.92.87.233:30002/admin/api/cases/wechat", json=data, headers=headers)
-    logger.info("接口返回={}".format(response))
-    # 检查响应状态码
-    if response.status == 200:
-        print("消息发送成功！")
-    else:
-        print("消息发送失败！")
+    if response:
+        logger.info("接口返回={}".format(response))
+    
