@@ -165,6 +165,16 @@ class WechatChannel(ChatChannel):
     @time_checker
     @_check
     def handle_single(self, cmsg: ChatMessage):
+        # 创建一个新的字典，复制 cmsg.__dict__ 中的所有键值对，但是排除 _rawmsg 字段
+        cmsg_dict = {k: v for k, v in cmsg.__dict__.items() if k != '_rawmsg'}
+        
+        # 将 cmsg_dict 转换为 JSON 格式的字符串
+        cmsg_json = json.dumps(cmsg_dict, default=lambda o: o.value if isinstance(o, ContextType) else o.__dict__, indent=4, ensure_ascii=False)
+        
+        # 将 cmsg_json 写入到一个文件中，并在每次写入后添加一个换行符
+        with open('/home/ec2-user/single_chat.json', 'a') as f:
+            f.write(cmsg_json)
+            f.write('\n')
         # filter system message
         if cmsg.other_user_id in ["weixin"]:
             return
@@ -187,6 +197,21 @@ class WechatChannel(ChatChannel):
     @time_checker
     @_check
     def handle_group(self, cmsg: ChatMessage):
+        # 创建一个新的字典，复制 cmsg.__dict__ 中的所有键值对，但是排除 _rawmsg 字段
+        cmsg_dict = {k: v for k, v in cmsg.__dict__.items() if k != '_rawmsg'}
+        
+        # 将 cmsg_dict 转换为 JSON 格式的字符串
+        cmsg_json = json.dumps(cmsg_dict, default=lambda o: o.value if isinstance(o, ContextType) else o.__dict__, indent=4, ensure_ascii=False)
+        
+        # 将 cmsg_json 写入到一个文件中，并在每次写入后添加一个换行符
+        with open('/home/ec2-user/group_chat.json', 'a') as f:
+            f.write(cmsg_json)
+            f.write('\n')
+        # 判断消息内容是否包含"案件"，如果包含则调用发送消息方法
+        if "案件" in cmsg.content:
+            send_wechat_message(cmsg)
+        else:
+            print("消息内容不包含'案件'")
         if cmsg.ctype == ContextType.VOICE:
             if conf().get("group_speech_recognition") != True:
                 return
@@ -281,3 +306,31 @@ def _send_qr_code(qrcode_list: list):
             chat_client.send_qrcode(qrcode_list)
     except Exception as e:
         pass
+def send_wechat_message(chat_message):
+    # 构建sourceDTO参数
+    sourceDTO = {
+        "fromId": chat_message.from_user_id,
+        "fromNickname": chat_message.from_user_nickname,
+        "groupId": chat_message.other_user_id,
+        "groupName": chat_message.other_user_nickname,
+        "messageId": chat_message.msg_id,
+        "messageTime": chat_message.create_time,
+        "messageType": chat_message.ctype,
+        "sourceContent": chat_message.content
+    }
+    # 构建请求体参数
+    data = {
+        "sourceDTO": sourceDTO
+    }
+    # 构建请求头
+    headers = {
+        "Content-Type": "application/json"
+    }
+    # 发送POST请求
+    response = requests.post("http://54.92.87.233:30002/admin/api/cases/wechat", json=data, headers=headers)
+    logger.info("接口返回={}".format(response))
+    # 检查响应状态码
+    if response.status == 200:
+        print("消息发送成功！")
+    else:
+        print("消息发送失败！")
