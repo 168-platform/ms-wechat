@@ -315,7 +315,7 @@ def send_wechat_message(chat_message):
         "groupName": chat_message.other_user_nickname,
         "messageId": chat_message.msg_id,
         "messageTime": chat_message.create_time,
-        "messageType": chat_message.ctype,
+        "messageType": chat_message.ctype.value,
         "sourceContent": chat_message.content
     }
     # 构建请求体参数
