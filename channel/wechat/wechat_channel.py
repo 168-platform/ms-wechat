@@ -307,8 +307,8 @@ def _send_qr_code(qrcode_list: list):
     except Exception as e:
         pass
 def send_wechat_message(chat_message):
-    # 构建sourceDTO参数
-    sourceDTO = {
+    # 构建请求体参数
+    data = {
         "fromId": chat_message.from_user_id,
         "fromNickname": chat_message.from_user_nickname,
         "groupId": chat_message.other_user_id,
@@ -317,10 +317,6 @@ def send_wechat_message(chat_message):
         "messageTime": chat_message.create_time,
         "messageType": chat_message.ctype.value,
         "sourceContent": chat_message.content
-    }
-    # 构建请求体参数
-    data = {
-        "sourceDTO": sourceDTO
     }
     # 构建请求头
     headers = {
