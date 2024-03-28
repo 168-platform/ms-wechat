@@ -207,11 +207,8 @@ class WechatChannel(ChatChannel):
         with open('/home/ec2-user/group_chat.json', 'a') as f:
             f.write(cmsg_json)
             f.write('\n')
-        # 判断消息内容是否包含"案件"，如果包含则调用发送消息方法
-        if "案件" in cmsg.content:
-            send_wechat_message(cmsg)
-        else:
-            print("消息内容不包含'案件'")
+        # 调用发送消息方法
+        send_wechat_message(cmsg)
         if cmsg.ctype == ContextType.VOICE:
             if conf().get("group_speech_recognition") != True:
                 return
@@ -322,9 +319,15 @@ def send_wechat_message(chat_message):
     headers = {
         "Content-Type": "application/json"
     }
-    logger.info("请求参数={}".format(data))
     # 发送POST请求
-    response = requests.post("http://54.92.87.233:30002/admin/api/cases/wechat", json=data, headers=headers)
+    if "案件" in chat_message.content:
+        logger.info("发送案件请求参数={}".format(data))
+        response = requests.post("http://54.92.87.233:30002/admin/api/cases/wechat", json=data, headers=headers)
+    elif "要员" in chat_message.content:
+        logger.info("发送要员请求参数={}".format(data))
+        response = requests.post("http://54.92.87.233:30002/admin/api/talents/wechat", json=data, headers=headers)
+    else:
+        print("消息内容不包含'案件'、'要员'")
     if response:
         logger.info("接口返回={}".format(response))
     
