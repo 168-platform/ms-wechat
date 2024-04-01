@@ -165,16 +165,16 @@ class WechatChannel(ChatChannel):
     @time_checker
     @_check
     def handle_single(self, cmsg: ChatMessage):
-        # 创建一个新的字典，复制 cmsg.__dict__ 中的所有键值对，但是排除 _rawmsg 字段
-        cmsg_dict = {k: v for k, v in cmsg.__dict__.items() if k != '_rawmsg'}
+        # # 创建一个新的字典，复制 cmsg.__dict__ 中的所有键值对，但是排除 _rawmsg 字段
+        # cmsg_dict = {k: v for k, v in cmsg.__dict__.items() if k != '_rawmsg'}
         
-        # 将 cmsg_dict 转换为 JSON 格式的字符串
-        cmsg_json = json.dumps(cmsg_dict, default=lambda o: o.value if isinstance(o, ContextType) else o.__dict__, indent=4, ensure_ascii=False)
+        # # 将 cmsg_dict 转换为 JSON 格式的字符串
+        # cmsg_json = json.dumps(cmsg_dict, default=lambda o: o.value if isinstance(o, ContextType) else o.__dict__, indent=4, ensure_ascii=False)
         
-        # 将 cmsg_json 写入到一个文件中，并在每次写入后添加一个换行符
-        with open('/home/ec2-user/single_chat.json', 'a') as f:
-            f.write(cmsg_json)
-            f.write('\n')
+        # # 将 cmsg_json 写入到一个文件中，并在每次写入后添加一个换行符
+        # with open('/home/ec2-user/single_chat.json', 'a') as f:
+        #     f.write(cmsg_json)
+        #     f.write('\n')
         # filter system message
         if cmsg.other_user_id in ["weixin"]:
             return
@@ -197,16 +197,16 @@ class WechatChannel(ChatChannel):
     @time_checker
     @_check
     def handle_group(self, cmsg: ChatMessage):
-        # 创建一个新的字典，复制 cmsg.__dict__ 中的所有键值对，但是排除 _rawmsg 字段
-        cmsg_dict = {k: v for k, v in cmsg.__dict__.items() if k != '_rawmsg'}
+        # # 创建一个新的字典，复制 cmsg.__dict__ 中的所有键值对，但是排除 _rawmsg 字段
+        # cmsg_dict = {k: v for k, v in cmsg.__dict__.items() if k != '_rawmsg'}
         
-        # 将 cmsg_dict 转换为 JSON 格式的字符串
-        cmsg_json = json.dumps(cmsg_dict, default=lambda o: o.value if isinstance(o, ContextType) else o.__dict__, indent=4, ensure_ascii=False)
+        # # 将 cmsg_dict 转换为 JSON 格式的字符串
+        # cmsg_json = json.dumps(cmsg_dict, default=lambda o: o.value if isinstance(o, ContextType) else o.__dict__, indent=4, ensure_ascii=False)
         
-        # 将 cmsg_json 写入到一个文件中，并在每次写入后添加一个换行符
-        with open('/home/ec2-user/group_chat.json', 'a') as f:
-            f.write(cmsg_json)
-            f.write('\n')
+        # # 将 cmsg_json 写入到一个文件中，并在每次写入后添加一个换行符
+        # with open('/home/ec2-user/group_chat.json', 'a') as f:
+        #     f.write(cmsg_json)
+        #     f.write('\n')
         # 调用发送消息方法
         send_wechat_message(cmsg)
         if cmsg.ctype == ContextType.VOICE:
@@ -323,11 +323,12 @@ def send_wechat_message(chat_message):
     if "案件" in chat_message.content:
         logger.info("发送案件请求参数={}".format(data))
         response = requests.post("http://54.92.87.233:30002/admin/api/cases/wechat", json=data, headers=headers)
+        logger.info("接口返回={}".format(response))
     elif "要员" in chat_message.content:
         logger.info("发送要员请求参数={}".format(data))
         response = requests.post("http://54.92.87.233:30002/admin/api/talents/wechat", json=data, headers=headers)
-    else:
-        print("消息内容不包含'案件'、'要员'")
-    if response:
         logger.info("接口返回={}".format(response))
+    else:
+        logger.info("消息内容不包含'案件'、'要员'")
+
     
