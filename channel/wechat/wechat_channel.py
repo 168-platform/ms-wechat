@@ -322,12 +322,21 @@ def send_wechat_message(chat_message):
     # 发送POST请求
     if "案件" in chat_message.content:
         logger.info("发送案件请求参数={}".format(data))
+        # 开发环境发送
         response = requests.post("http://54.92.87.233:30002/admin/api/cases/wechat", json=data, headers=headers)
-        logger.info("接口返回={}".format(response))
+        logger.info("dev 接口返回={}".format(response))
+        # 测试环境发送
+        responseTest = requests.post("http://www-test.good7ob.com/api/admin/api/cases/wechat", json=data, headers=headers)
+        logger.info("test 接口返回={}".format(responseTest))
+        
     elif "要员" in chat_message.content:
         logger.info("发送要员请求参数={}".format(data))
+        # 开发环境发送
         response = requests.post("http://54.92.87.233:30002/admin/api/talents/wechat", json=data, headers=headers)
-        logger.info("接口返回={}".format(response))
+        logger.info("dev 接口返回={}".format(response))
+        # 测试环境发送
+        responseTest = requests.post("http://www-test.good7ob.com/api/admin/api/talents/wechat", json=data, headers=headers)
+        logger.info("test 接口返回={}".format(responseTest))
     else:
         logger.info("消息内容不包含'案件'、'要员'")
 
