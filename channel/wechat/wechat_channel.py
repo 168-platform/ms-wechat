@@ -323,21 +323,28 @@ def send_wechat_message(chat_message):
     if "案件" in chat_message.content:
         logger.info("发送案件请求参数={}".format(data))
         # 开发环境发送
-        response = requests.post("http://54.92.87.233:30002/admin/api/cases/wechat", json=data, headers=headers)
-        logger.info("dev 接口返回={}".format(response))
+        post_data("http://54.92.87.233:30002/admin/api/cases/wechat", data, headers, "dev案件")
         # 测试环境发送
-        responseTest = requests.post("http://www-test.good7ob.com/api/admin/api/cases/wechat", json=data, headers=headers)
-        logger.info("test 接口返回={}".format(responseTest))
-        
+        post_data("http://www-test.good7ob.com/api/admin/api/cases/wechat", data, headers, "test案件")
     elif "要员" in chat_message.content:
         logger.info("发送要员请求参数={}".format(data))
         # 开发环境发送
-        response = requests.post("http://54.92.87.233:30002/admin/api/talents/wechat", json=data, headers=headers)
-        logger.info("dev 接口返回={}".format(response))
+        post_data("http://54.92.87.233:30002/admin/api/talents/wechat", data, headers, "dev要员")
         # 测试环境发送
-        responseTest = requests.post("http://www-test.good7ob.com/api/admin/api/talents/wechat", json=data, headers=headers)
-        logger.info("test 接口返回={}".format(responseTest))
+        post_data("http://www-test.good7ob.com/api/admin/api/talents/wechat", data, headers, "test要员")
     else:
         logger.info("消息内容不包含'案件'、'要员'")
+def post_data(url, data, headers, title):
+    try:
+        response = requests.post(url, json=data, headers=headers)
+    except Exception as e:
+        # 记录异常信息，以便于调试和追踪问题
+        logger.error(f"{title}接口请求发生异常: {e}")
+        # 处理异常情况，如设置默认响应或空响应，根据实际需求调整
+        response = None  # 或者其他合适的默认值/空响应对象
 
-    
+    # 不论是否发生异常，继续执行日志记录
+    if response is not None:
+        logger.info(f"{title}接口返回={response}")
+    else:
+        logger.warning(f"{title}接口请求失败，使用默认响应（或无响应）进行后续处理")
