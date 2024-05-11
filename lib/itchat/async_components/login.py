@@ -363,6 +363,9 @@ def sync_check(self):
     self.loginInfo['logintime'] += 1
     try:
         r = self.s.get(url, params=params, headers=headers, timeout=config.TIMEOUT)
+        logger.info("hhhh async URL: %s", url)
+        logger.info("hhhh async Sync Check Response: \nStatus Code: %s\nContent: %s",
+                    r.status_code, r.text)
     except requests.exceptions.ConnectionError as e:
         try:
             if not isinstance(e.args[0].args[1], BadStatusLine):
@@ -378,7 +381,7 @@ def sync_check(self):
     regx = r'window.synccheck={retcode:"(\d+)",selector:"(\d+)"}'
     pm = re.search(regx, r.text)
     if pm is None or pm.group(1) != '0':
-        logger.debug('Unexpected sync check result: %s' % r.text)
+        logger.debug('Unexpected async check result: %s' % r.text)
         return None
     return pm.group(2)
 

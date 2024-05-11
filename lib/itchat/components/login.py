@@ -355,6 +355,9 @@ def sync_check(self):
     try:
         r = self.s.get(url, params=params, headers=headers,
                        timeout=config.TIMEOUT)
+        logger.info("hhhh URL: %s", url)
+        logger.info("hhhh Sync Check Response: \nStatus Code: %s\nContent: %s",
+                    r.status_code, r.text)
     except requests.exceptions.ConnectionError as e:
         try:
             if not isinstance(e.args[0].args[1], BadStatusLine):
