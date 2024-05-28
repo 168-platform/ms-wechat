@@ -22,6 +22,13 @@ from ..storage.templates import wrap_user_dict
 from .contact import update_local_chatrooms, update_local_friends
 from .messages import produce_msg
 
+# 配置日志格式
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
 logger = logging.getLogger('itchat')
 
 
@@ -294,7 +301,16 @@ def start_receiving(self, exitCallback=None, getReceivingFnOnly=False):
             try:
                 i = sync_check(self)
                 if i is None:
-                    self.alive = False
+                    # self.alive = False
+
+                    retryCount += 1
+                    logger.error("sync_check error.")
+                    if self.receivingRetryCount < retryCount:
+                        logger.error("Having tried %s times, but still failed. " % (
+                            retryCount) + "Stop trying...")
+                        self.alive = False
+                    else:
+                        time.sleep(10)
                 elif i == '0':
                     pass
                 else:
@@ -355,9 +371,9 @@ def sync_check(self):
     try:
         r = self.s.get(url, params=params, headers=headers,
                        timeout=config.TIMEOUT)
-        logger.info("hhhh URL: %s", url)
-        logger.info("hhhh Sync Check Response: \nStatus Code: %s\nContent: %s",
-                    r.status_code, r.text)
+        # logger.info("hhhh URL: %s", url)
+        # logger.info("hhhh Sync Check Response: \nStatus Code: %s\nContent: %s",
+        #             r.status_code, r.text)
     except requests.exceptions.ConnectionError as e:
         try:
             if not isinstance(e.args[0].args[1], BadStatusLine):
